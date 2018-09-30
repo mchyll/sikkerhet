@@ -2,3 +2,7 @@ build/
 *.a
 *.o
 *.so
+
+.idea/
+cmake-build-debug/
+.clang-format

@@ -1,1 +1,1 @@
-find -atime +7
+wget http://www.iie.ntnu.no/fag/_spn/L03/opg05.pdf

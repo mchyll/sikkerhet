@@ -1,0 +1,3 @@
+find home -atime +7 -mtime +7 -size +10k | while read filnavn; do
+    gzip -q $filnavn
+done
