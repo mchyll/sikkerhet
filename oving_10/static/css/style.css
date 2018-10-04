@@ -1,0 +1,15 @@
+.vertical-center {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.login-form-card {
+    width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-control:last-child {
+
+}
