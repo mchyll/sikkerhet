@@ -20,25 +20,39 @@ done
 
 echo
 
-dig $1 TXT +short | while read line; do
-    for spfhost in $(echo $line | grep -Eoi "(include|ip[46]):\S+" | cut -d":" -f2- | cut -d"/" -f1); do
-        echo "SPF host: $spfhost"
-        echo $spfhost | grep -Eq "\S+\.[a-z]+"
-        if [ $? -eq 0 ]; then
-            # Is hostname
-            for ip in $(dig $spfhost +short); do
-                echo "    IP: $ip"
+spf_lookup() {
+    local indent=$((4 * $2))
+
+    # For each TXT record (which may be SPF records or something else)
+    dig $1 TXT +short | while read line; do
+        # For each SPF host in the current SPF record
+        for spfhost in $(echo $line | grep -Eoi "(include|ip[46]):\S+" | cut -d":" -f2- | cut -d"/" -f1); do
+            printf "%${indent}sSPF host: $spfhost"
+
+            # Checks whether the SPF host is a hostname or an IP
+            echo $spfhost | grep -Eq "\S+\.[a-z]+"
+            if [ $? -eq 0 ]; then
+                # Is hostname
+                printf ", IPs: "
+                printf "$(dig $spfhost +short | tr '\n' ' ')\n"
+#                for ip in $(dig $spfhost +short); do
+#                    # Do a reverse lookup of the MX host's IP
+#                    revhost=$(dig -x $ip +short)
+#
+#                    printf "%${indent}s"
+#                    echo "    IP: $ip, reverse lookup: $revhost"
+#                    printf " $ip"
+#                done
                 
-                # Do a reverse lookup of the MX host's IP
-                for revhost in $(dig -x $ip +short); do
-                    echo "        reverse lookup: $revhost"
-                done
-            done
-        else
-            # Is IP
-            for revhost in  $(dig -x $spfhost +short | tr '\n' ' '); do
-                echo "    reverse lookup: $revhost"
-            done
-        fi
+#                printf "%${indent}s  SPF records for this host:\n"
+                spf_lookup "$spfhost" $(($2 + 1))
+            else
+                # Is IP
+                printf ", reverse lookup: "
+                printf "$(dig -x $spfhost +short | tr '\n' ' ')\n"
+            fi
+        done
     done
-done
+}
+
+spf_lookup "$1" 0
