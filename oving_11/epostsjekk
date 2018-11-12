@@ -9,10 +9,12 @@ dig $1 MX +short | while read line; do
     
     # Find the IP for each MX host
     for ip in $(dig $mxhost +short); do
+        echo "    IP: $ip"
+        
         # Do a reverse lookup of the MX host's IP
-        revhost=$(dig -x $ip +short)
-
-        echo "    IP: $ip, reverse lookup: $revhost"
+        for revhost in $(dig -x $ip +short); do
+            echo "        reverse lookup: $revhost"
+        done
     done
 done
 
@@ -25,14 +27,18 @@ dig $1 TXT +short | while read line; do
         if [ $? -eq 0 ]; then
             # Is hostname
             for ip in $(dig $spfhost +short); do
+                echo "    IP: $ip"
+                
                 # Do a reverse lookup of the MX host's IP
-                revhost=$(dig -x $ip +short)
-
-                echo "    IP: $ip, reverse lookup: $revhost"
+                for revhost in $(dig -x $ip +short); do
+                    echo "        reverse lookup: $revhost"
+                done
             done
         else
             # Is IP
-            echo "    Reverse lookup: $(dig -x $spfhost +short | tr '\n' ' ')"
+            for revhost in  $(dig -x $spfhost +short | tr '\n' ' '); do
+                echo "    reverse lookup: $revhost"
+            done
         fi
     done
 done
