@@ -1,12 +1,12 @@
 import flask
 from flask import request
-from oving_10.auth import authenticate, get_session
+from auth import authenticate, get_session
 
 app = flask.Flask(__name__)
 
 
 @app.route('/authenticate', methods=['POST'])
-def authenticate_endpoint():
+def login():
     """
     Autentiserer et innloggingsforsøk.
     Brukernavn og (hashet) passord sendes som JSON.
