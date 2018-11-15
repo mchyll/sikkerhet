@@ -9,3 +9,7 @@
     margin-left: auto;
     margin-right: auto;
 }
+
+#wrong_credentials_response, #response {
+    display: none;
+}

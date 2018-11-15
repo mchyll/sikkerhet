@@ -22,6 +22,14 @@
                 <input id="password" class="form-control" type="password" placeholder="Passord">
             </div>
             <button id="btn_login" class="btn btn-outline-primary">Logg inn</button>
+
+            <div id="wrong_credentials_response" class="card text-white bg-danger mt-3">
+                <div class="card-body">Feil brukernavn eller passord</div>
+            </div>
+
+            <div id="response" class="card text-white bg-primary mt-3">
+                <div class="card-body"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -31,6 +39,8 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.bundle.min.js"
         integrity="sha384-pjaaA8dDz/5BgdFUPX6M/9SUZv4d12SUPF0axWc+VRZkx5xU3daN+lYb49+Ax+Tl"
         crossorigin="anonymous"></script>
+<script src="static/js/cryptojs/rollups/pbkdf2.js"></script>
+<script src="static/js/script.js"></script>
 
 </body>
 </html>

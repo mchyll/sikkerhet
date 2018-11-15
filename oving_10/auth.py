@@ -2,11 +2,26 @@ import hashlib
 import os
 import sqlite3
 
+# Parametre for PBKDF2-hashing på serversiden
 HASH_ALG = 'sha512'
 SALT_LEN = 32
 ITERATIONS = 100000
 
+TOKEN_LEN_BYTES = 64
+
+# Inneholder tokens og tilhørende brukernavn
 tokens = {}
+
+
+def authenticate(username, password):
+    """
+    Autentiserer et innloggingsforsøk.
+    Dersom gyldig genereres og returneres en tilfeldig token som knyttes til brukeren.
+    """
+    if check_password_match(username, password):
+        return generate_session_token(username)
+    else:
+        return None
 
 
 def get_user_password_and_hash(username):
@@ -27,8 +42,6 @@ def register_user(username, password):
     salt = os.urandom(SALT_LEN)
     hash = hashlib.pbkdf2_hmac(HASH_ALG, password.encode('utf-8'), salt, ITERATIONS).hex()
     salt = salt.hex()
-    # print('salt:', salt)
-    # print('hash:', hash)
 
     c.execute('INSERT INTO users(username, password_hash, password_salt) '
               'VALUES (?, ?, ?)', (username, hash, salt))
@@ -37,29 +50,24 @@ def register_user(username, password):
     db.close()
 
 
-def check_password_match(username, in_password):
+def check_password_match(username, password):
     user = get_user_password_and_hash(username)
     if not user:
         return False
 
     user_salt = bytes.fromhex(user['password_salt'])
-    in_hash = hashlib.pbkdf2_hmac(HASH_ALG, in_password.encode('utf-8'), user_salt, ITERATIONS).hex()
-    # print('in_hash:', in_hash)
-    return in_hash == user['password_hash']
+    hash = hashlib.pbkdf2_hmac(HASH_ALG, password.encode('utf-8'), user_salt, ITERATIONS).hex()
+    return hash == user['password_hash']
 
 
-def gen_session_token(username, len_bytes=64):
-    token = os.urandom(len_bytes).hex()
+def generate_session_token(username):
+    """
+    Genererer og returnerer en ny tilfeldig token som tilhører gitt brukernavn.
+    """
+    token = os.urandom(TOKEN_LEN_BYTES).hex()
     tokens[token] = username
     return token
 
 
 def get_session(token):
     return tokens.get(token, None)
-
-
-if __name__ == '__main__':
-    # register_user('hyll', '1234')
-    print(check_password_match('hyll', '1234'))
-    token = gen_session_token('hyll')
-    print(token, get_session(token))
